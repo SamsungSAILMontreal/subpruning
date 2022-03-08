@@ -7,14 +7,14 @@ Code to reproduce results of the paper "Data-Efficient Structured Pruning via Su
 To install dependencies:
 
 cd subpruning/shrinkbench
-# Create a python virtualenv or conda env and activate it
-# With conda
+## Create a python virtualenv or conda env and activate it
+## With conda
 conda install --file requirements.txt -y
 
-# With pip
+## With pip
 pip install -r requirements.txt 
 
-#  add the path to subpruning folder to your `PYTHONPATH`.  For example:
+##  add the path to subpruning folder to your `PYTHONPATH`.  For example:
 export PYTHONPATH="$PYTHONPATH:$HOME/subpruning/"
 
 To install the submodular maximization package from https://github.com/sbuschjaeger/SubmodularStreamingMaximization (code already included in SubmodularStreamingMaximization folder)
