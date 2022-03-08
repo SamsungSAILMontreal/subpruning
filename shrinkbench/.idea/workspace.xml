@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="715adf55-395b-44c2-9ee2-7ace179d7beb" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/../../../icml2022/SubPruning_Arxiv.tex" beforeDir="false" afterPath="$PROJECT_DIR$/../../../icml2022/SubPruning_Arxiv.tex" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../icml2022/introduction.tex" beforeDir="false" afterPath="$PROJECT_DIR$/../../../icml2022/introduction.tex" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../shrinkbench/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../shrinkbench/experiment/prune_channels.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../../shrinkbench/experiment/prune_channels.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../shrinkbench/jupyter/visualize_results.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/../../../shrinkbench/jupyter/visualize_results.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../shrinkbench/pruning/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../../shrinkbench/pruning/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../shrinkbench/pruning/linear.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../shrinkbench/pruning/structured_abstract.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../../shrinkbench/pruning/structured_abstract.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../shrinkbench/pruning/structured_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../../shrinkbench/pruning/structured_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../shrinkbench/pruning/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../../shrinkbench/pruning/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../shrinkbench/scripts/prune_channels.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../../shrinkbench/scripts/prune_channels.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../shrinkbench/scripts/prune_onelayer.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../../shrinkbench/scripts/prune_onelayer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../shrinkbench/scripts/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../../shrinkbench/scripts/test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../shrinkbench/scripts/train_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../../shrinkbench/scripts/train_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../shrinkbench/strategies/structured.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../../shrinkbench/strategies/structured.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../shrinkbench/strategies/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../../shrinkbench/strategies/utils.py" afterDir="false" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/plot/data.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <folding>
+                <element signature="e#0#11#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/pruning/structured_abstract.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-174">
+              <folding>
+                <element signature="e#0#30#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/scripts/train_model.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="467">
+              <caret line="65" column="82" selection-start-line="65" selection-start-column="82" selection-end-line="65" selection-end-column="82" />
+              <folding>
+                <element signature="e#0#9#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/strategies/structured.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="191">
+              <caret line="349" column="81" selection-start-line="349" selection-start-column="71" selection-end-line="349" selection-end-column="81" />
+              <folding>
+                <element signature="e#69#92#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/strategies/structured_utils.py">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/experiment/prune_channels.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-134">
+              <folding>
+                <element signature="e#0#11#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/pruning/structured_utils.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="2193">
+              <caret line="129" column="25" selection-start-line="129" selection-start-column="17" selection-end-line="129" selection-end-column="25" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/scripts/prune_channels.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1218">
+              <caret line="75" column="82" selection-start-line="75" selection-start-column="82" selection-end-line="75" selection-end-column="82" />
+              <folding>
+                <element signature="e#0#15#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/scripts/prune_onelayer.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="51">
+              <caret line="3" column="16" selection-start-line="3" selection-start-column="16" selection-end-line="3" selection-end-column="16" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/scripts/test.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-128">
+              <caret line="21" column="21" selection-start-line="21" selection-start-column="21" selection-end-line="21" selection-end-column="21" />
+              <folding>
+                <element signature="e#0#9#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>backward</find>
+      <find>greedy_old</find>
+    </findStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../.." />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/pruning/utils.py" />
+        <option value="$PROJECT_DIR$/jupyter/visualize_results.ipynb" />
+        <option value="$PROJECT_DIR$/pruning/structured_utils.py" />
+        <option value="$PROJECT_DIR$/scripts/prune_channels.py" />
+        <option value="$PROJECT_DIR$/scripts/prune_onelayer.py" />
+        <option value="$PROJECT_DIR$/scripts/test.py" />
+        <option value="$PROJECT_DIR$/scripts/train_model.py" />
+        <option value="$PROJECT_DIR$/strategies/structured.py" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds" extendedState="6" fullScreen="true">
+    <option name="x" value="1680" />
+    <option name="width" value="1920" />
+    <option name="height" value="1080" />
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="shrinkbench" type="b2602c69:ProjectViewProjectNode" />
+              <item name="shrinkbench" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="shrinkbench" type="b2602c69:ProjectViewProjectNode" />
+              <item name="shrinkbench" type="462c0819:PsiDirectoryNode" />
+              <item name="experiment" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="shrinkbench" type="b2602c69:ProjectViewProjectNode" />
+              <item name="shrinkbench" type="462c0819:PsiDirectoryNode" />
+              <item name="jupyter" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="shrinkbench" type="b2602c69:ProjectViewProjectNode" />
+              <item name="shrinkbench" type="462c0819:PsiDirectoryNode" />
+              <item name="metrics" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="shrinkbench" type="b2602c69:ProjectViewProjectNode" />
+              <item name="shrinkbench" type="462c0819:PsiDirectoryNode" />
+              <item name="models" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="shrinkbench" type="b2602c69:ProjectViewProjectNode" />
+              <item name="shrinkbench" type="462c0819:PsiDirectoryNode" />
+              <item name="plot" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="shrinkbench" type="b2602c69:ProjectViewProjectNode" />
+              <item name="shrinkbench" type="462c0819:PsiDirectoryNode" />
+              <item name="pruning" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="shrinkbench" type="b2602c69:ProjectViewProjectNode" />
+              <item name="shrinkbench" type="462c0819:PsiDirectoryNode" />
+              <item name="scripts" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="shrinkbench" type="b2602c69:ProjectViewProjectNode" />
+              <item name="shrinkbench" type="462c0819:PsiDirectoryNode" />
+              <item name="strategies" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="configurable.group.build" />
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager">
+    <configuration name="shrinkbench" type="JupiterNotebook" factoryName="Jupyter Notebook">
+      <module name="shrinkbench" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="additionalOptions" value="" />
+      <option name="ipnbHost" value="127.0.0.1" />
+      <option name="ipnbPort" value="8888" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="715adf55-395b-44c2-9ee2-7ace179d7beb" name="Default Changelist" comment="" />
+      <created>1646703608173</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1646703608173</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="TodoView">
+    <todo-panel id="selected-file">
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+    <todo-panel id="all">
+      <are-packages-shown value="true" />
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="1680" y="0" width="1920" height="1080" extended-state="6" />
+    <layout>
+      <window_info id="Favorites" side_tool="true" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.18852027" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info anchor="bottom" id="Version Control" weight="0.32970297" />
+      <window_info anchor="bottom" id="Python Console" weight="0.32970297" />
+      <window_info anchor="bottom" id="Terminal" weight="0.32970297" />
+      <window_info anchor="bottom" id="Event Log" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.32970297" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.32970297" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+    </layout>
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$USER_HOME$/Library/Jupyter/runtime/nbserver-84367-open.html">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/jupyter/visualize_results.ipynb">
+      <provider selected="true" editor-type-id="ipnb-editor">
+        <state>
+          <selected id="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pruning/utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="449">
+          <caret line="66" column="24" selection-start-line="66" selection-start-column="24" selection-end-line="66" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/plot/data.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/prune_channels.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1218">
+          <caret line="75" column="82" selection-start-line="75" selection-start-column="82" selection-end-line="75" selection-end-column="82" />
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/prune_onelayer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="51">
+          <caret line="3" column="16" selection-start-line="3" selection-start-column="16" selection-end-line="3" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiment/prune_channels.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-134">
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pruning/structured_abstract.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-174">
+          <folding>
+            <element signature="e#0#30#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-128">
+          <caret line="21" column="21" selection-start-line="21" selection-start-column="21" selection-end-line="21" selection-end-column="21" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pruning/structured_utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2193">
+          <caret line="129" column="25" selection-start-line="129" selection-start-column="17" selection-end-line="129" selection-end-column="25" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scripts/train_model.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="467">
+          <caret line="65" column="82" selection-start-line="65" selection-start-column="82" selection-end-line="65" selection-end-column="82" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/strategies/structured_utils.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/strategies/structured.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="191">
+          <caret line="349" column="81" selection-start-line="349" selection-start-column="71" selection-end-line="349" selection-end-column="81" />
+          <folding>
+            <element signature="e#69#92#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>
