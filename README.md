@@ -37,7 +37,6 @@ python test.py
 
 # To reproduce results in the paper
 
-- move pretrained and data folders inside subpruning/shrinkbench and state_dicts folder inside subpruning/shrinkbench/models/cifar10_models
 - run one layer pruning script (used for perlayer budget selection): subpruning/shrinkbench/scripts/lay_pruning_job.sh 
 - run script for multiple layers pruning (to reproduce all results in the paper): subpruning/shrinkbench/scripts/pruning_job.sh 
 - plot results using subpruning/shrinkbench/jupyter/visualize_results.ipynb notebook
