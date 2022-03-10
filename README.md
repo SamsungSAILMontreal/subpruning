@@ -45,6 +45,7 @@ python test.py
 Note: make sure to adapt the PYTHONPATH in both lay_pruning_job.sh and pruning_job.sh, and the one layer pruning job ids in pruning_job.sh
 
 # To cite our paper
+```
 @misc{elhalabi2022dataefficient,
       title={Data-Efficient Structured Pruning via Submodular Optimization}, 
       author={Marwa El Halabi and Suraj Srinivas and Simon Lacoste-Julien},
@@ -53,7 +54,7 @@ Note: make sure to adapt the PYTHONPATH in both lay_pruning_job.sh and pruning_j
       archivePrefix={arXiv},
       primaryClass={cs.LG}
 }
-
+```
 # Acknowledgements
 
 - Our code builds on the open source ShrinkBench library: https://github.com/JJGO/shrinkbench
