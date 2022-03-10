@@ -1,6 +1,6 @@
 # Data-Efficient Structured Pruning via Submodular Optimization
 
-Code to reproduce results of the paper Data-Efficient Structured Pruning via Submodular Optimization
+Code to reproduce results of the paper [Data-Efficient Structured Pruning via Submodular Optimization](https://arxiv.org/abs/2203.04940)
 
 ## Installation
 
@@ -45,8 +45,16 @@ python test.py
 Note: make sure to adapt the PYTHONPATH in both lay_pruning_job.sh and pruning_job.sh, and the one layer pruning job ids in pruning_job.sh
 
 # To cite our paper
-
-
+```
+@misc{elhalabi2022dataefficient,
+      title={Data-Efficient Structured Pruning via Submodular Optimization}, 
+      author={Marwa El Halabi and Suraj Srinivas and Simon Lacoste-Julien},
+      year={2022},
+      eprint={2203.04940},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG}
+}
+```
 # Acknowledgements
 
 - Our code builds on the open source ShrinkBench library: https://github.com/JJGO/shrinkbench
