@@ -5,6 +5,19 @@ import heapq
 import torch.nn.utils.prune as prune
 import torch.nn as nn
 from scipy.sparse.linalg import svds
+from scipy.interpolate import interp1d
+
+
+def get_module(model, module_name):
+    module = model
+    if module_name == '':
+        return module
+    for s in module_name.split('.'):
+        if s.isdigit():
+            module = module[int(s)]
+        else:
+            module = getattr(module, s)
+    return module
 
 
 def prunable_modules(model, structure, prune_layers=None):
@@ -13,9 +26,9 @@ def prunable_modules(model, structure, prune_layers=None):
     # prunable = (union of channel_prunable + their next modules)
     # prunable_classes = (Conv2dMasked, nn.Conv2d) if structure == "channel" else (LinearMasked, nn.Linear)
 
-    assert structure in ["channel", "neuron"], "chosen structure is not supported"
-    prunable_classes = nn.Conv2d if structure == "channel" else nn.Linear
-    named_modules_list = list(model.named_modules())
+    prunable_classes = nn.Conv2d if structure == "channel" else nn.Linear if structure == "neuron" \
+        else (nn.Conv2d, nn.Linear)
+    named_modules_list = list(model.named_modules())  # does not include functionals
     prunable = set()
     channel_prunable = []
     next_module_map, bn_map = {}, {}
@@ -25,7 +38,9 @@ def prunable_modules(model, structure, prune_layers=None):
             next_name, bn_name = None, None
             for j in range(i + 1, len(named_modules_list)):
                 mod_name, mod = named_modules_list[j]
-                if len(list(mod.parameters())) > 0:
+                # skip modules without parameters like ReLU, MaxPool, Dropout, but not empty sequential
+                # (used for shortcuts)
+                if len(list(mod.parameters())) > 0 or isinstance(mod, nn.Sequential):
                     if isinstance(mod, nn.BatchNorm2d):
                         bn_name, bn_module = mod_name, mod
                     else:
@@ -50,16 +65,20 @@ def map_chton(channels, kernel_size):
 class IndicesStructured(prune.BasePruningMethod):
     """Prune all chosen indices along chosen dim in a tensor
        function extending torch.nn.utils.prune (see https://pytorch.org/tutorials/intermediate/pruning_tutorial.html)
+       pruning 'weight' removes it from the mod params and a new param called 'weight_orig' replaces it. This new param
+       stores the unpruned version of the tensor and is updated during training. A new attribute 'weight' is added and
+       is updated in each forward pass with weight = weight_orig * weight_mask.
     """
     PRUNING_TYPE = 'global'
 
-    def __init__(self, dim, indices):
+    def __init__(self, dim, indices, scale):
         super(IndicesStructured, self).__init__()
         self.dim = dim
         self.indices = indices
+        self.scale = scale
 
     def compute_mask(self, t, default_mask):
-        mask = default_mask.clone()
+        mask = self.scale * default_mask.clone()
         # e.g.: slc = [None, None, None], if len(t.shape) = 3
         slc = [slice(None)] * len(t.shape)
         # e.g.: slc = [None, None, [0, 2, 3]] if dim=2 & indices=[0,2,3]
@@ -68,9 +87,20 @@ class IndicesStructured(prune.BasePruningMethod):
         return mask
 
 
-def indices_structured(module, name, dim, indices):
-    IndicesStructured.apply(module, name, dim, indices)
+def indices_structured(module, name, dim, indices, scale=1):
+    IndicesStructured.apply(module, name, dim, indices, scale)
     return module
+
+
+def undo_pruning(module, weight_mask=None):
+    # reset module to its state before pruning done after the one corresponding to weight mask
+    for pname in ['weight', 'bias']:
+        if hasattr(module, pname + '_orig'):
+            porig = getattr(module, pname + '_orig').data
+            prune.remove(module, pname)
+            getattr(module, pname).data = porig
+    if weight_mask is not None:  # reapply weight mask if any
+        prune.custom_from_mask(module, 'weight', weight_mask)
 
 
 def dict_to_list(S):
@@ -97,6 +127,21 @@ def fillup_sol(S, F, V, k, update=False):
     if update:
         F.update(S, added_elts, len(S))
     return S + added_elts
+
+
+def monotone_envelope(x, y):
+    # input: list of inputs and outputs of a 1d function
+    # returns monotone non-decreasing envelope of function
+    y = np.minimum(y, y[-1])  # enforce max value to be the last one
+    x_monotone, y_monotone = [x[0]], [y[0]]
+    last_monotone_y = y[0]
+    for i in range(1, len(x)):
+        if y[i] >= last_monotone_y:  # y[i-1]:
+            x_monotone.append(x[i])
+            y_monotone.append(y[i])
+            last_monotone_y = y[i]
+    f = interp1d(x_monotone, y_monotone)
+    return f(x)
 
 
 class ScaledFctWrapper(SubmodularFunctionint):
@@ -447,6 +492,7 @@ def rw_colsubset_marg(B, W, I, SIc, projS_B, xS_B, asymmetric=False, A=None, xS_
     We only need projS(b_j) and xS(b_j) for j not in S, but for simplicity in indexing projS_B and xS_B contain
     projS(b_j) and xS(b_j) for all j in V
     """
+    # TODO: implement backward variant
     if I.__class__ != list:
         I = [I]
     if not asymmetric:

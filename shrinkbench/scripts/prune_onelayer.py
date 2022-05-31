@@ -7,6 +7,7 @@ import pathlib
 from shrinkbench.experiment import StructuredPruningExperiment, TrainingExperiment
 from shrinkbench.pruning import prunable_modules
 from collections import OrderedDict
+import subprocess
 
 parser = argparse.ArgumentParser(description='Prune channels in every prunable layer of a NN')
 
@@ -21,7 +22,7 @@ parser.add_argument('-r', dest='nruns', type=int,
 parser.add_argument('-d', '--dataset', dest='dataset', type=str, help='Dataset to train on', default='MNIST')
 parser.add_argument('-m', '--model', dest='model', type=str, help='What NN to use', default='MnistNet')
 parser.add_argument('-t', '--structure', dest='structure', type=str, help='type of structure to prune '
-                                                                          '(neurons or channels)', default='neuron')
+                                                                          '(neurons or channels)', default=None)
 parser.add_argument('-s', '--strategies', dest='strategies', type=str,
                     help='Pruning strategies to run, separated by comma, or all to run all available layerwise '
                          'strategies', default='all')
@@ -34,6 +35,10 @@ parser.add_argument('-o', '--optim', dest='optim', type=str, help='What optimiza
 parser.add_argument('-b', '--nbatches', dest='nbatches', type=int, help='# of batches to use in pruning', default=1)
 parser.add_argument('-f', '--fractions', dest='fractions', nargs="+", type=float, help='List of fractions of prunable '
                                                     'channels to keep', default=[0.01, 0.05, 0.075] + [i*0.05 for i in range(2, 21)])
+parser.add_argument('--reweight', dest='reweight',  choices=('True', 'False'), default=None,
+                    help='apply reweighting procedure after pruning')
+parser.add_argument('-fd', '--full_data', dest='full_data',  choices=('True', 'False'), default=None,
+                    help='use full training data for pruning in GreedyFSChannel')
 parser.add_argument('--patches', dest='patches', type=str, help='use all or disjoint or random patches in LayerInChangeChannel',
                     default='all')
 parser.add_argument('--path', dest='path', type=str, help='path to save/read results', default='results')
@@ -48,26 +53,27 @@ if __name__ == '__main__':
     os.environ['WEIGHTSPATH'] = '../pretrained/shrinkbench-models'
     os.environ['TORCH_HOME'] = '../pretrained/torchvision-models'
 
-    strategies =  ['LayerInChangeChannel', 'LayerRandomChannel', 'LayerWeightNormChannel', 'LayerActGradChannel'] \
-        if args.strategies == "all" else args.strategies.split(',')
+    strategies = ['LayerInChangeChannel', 'LayerRandomChannel', 'LayerWeightNormChannel', 'LayerActGradChannel',
+                  'LayerGreedyFSChannel'] if args.strategies == "all" else args.strategies.split(',')
 
+    gitcommit_str = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode('ascii').strip()
     fixed_params = {'dataset': args.dataset,
                     'model': args.model,
                     'structure': args.structure,
                     'train_kwargs': {'epochs': 0},
-                    'dl_kwargs' : {'cifar_shape': True} if args.model=='vgg11_bn_small_mnist' else {},
+                    'dl_kwargs': {'cifar_shape': True} if args.model == 'vgg11_bn_small_mnist' else {},
                     'nbatches': args.nbatches,
                     'verif': True,
                     'pretrained': True,
                     'debug': False,
-                    'rootdir' : f'{args.path}/onelayer-pruning/{args.dataset}-{args.model}-{args.job_id}'}
+                    'rootdir': f'{args.path}/onelayer-pruning/{args.dataset}-{args.model}-{gitcommit_str}-{args.job_id}'}
 
     exp = TrainingExperiment(args.dataset, args.model)
     _, channel_prunable, _, _ = prunable_modules(exp.model, args.structure, 'all')
 
     hyperparam_options = OrderedDict({'seed': [42 + i for i in range(args.nruns)],
                                       'strategy': strategies,
-                                      'reweight': [True, False],
+                                      'reweight': [True, False] if args.reweight is None else [args.reweight == "True"],
                                       'prune_layers': [[layer] for layer in (channel_prunable if args.layers == "all"
                                                                              else args.layers.split(','))]})
 
@@ -76,20 +82,25 @@ if __name__ == '__main__':
                     # Frobenius norm of input of corresponding layer
                     "norm": [0, 1, 2],
                     "out": [True, False],
+                    "scale_masks": [True],  # False
                     "patches": [args.patches],
-                    "algo": ['greedy'] if args.algo is None else [args.algo]}
+                    "epsilon": [0.1, 0.01, 0.001],  # [0, 0.1, 0.01, 0.001]
+                    "full_data": [True, False] if args.full_data is None else [args.full_data == "True"],
+                    "algo": ['greedy'] if args.algo is None else [args.algo]} #'sieve'
 
     def get_prune_kwargs_dict(var_keys, fixed_params={}):
         return [dict(zip(var_keys, params), **fixed_params) for params in
                 itertools.product(*[prune_kwargs[key] for key in var_keys])]
 
-    prune_kwargs_map = {'LayerInChangeChannel': get_prune_kwargs_dict(["algo", "patches"],{"sequential": False, "rwchange": True,
-                                                                       "norm": 2}),
+    prune_kwargs_map = {'LayerInChangeChannel': get_prune_kwargs_dict(["algo", "patches"],
+                                                {"sequential": False, "rwchange": True, "norm": 2}),
                         'LayerWeightChangeChannel': get_prune_kwargs_dict(["out", "algo"], {"sequential": False,
                                                                                             "norm": 0}),
                         'LayerRandomChannel': [{}],
                         'LayerWeightNormChannel': [{"ord": 1}],
-                        'LayerActGradChannel': [{}]}
+                        'LayerActGradChannel': [{}],
+                        'LayerGreedyFSChannel': get_prune_kwargs_dict(["scale_masks", "full_data"])
+                        }
 
     # add fractions last to hyperparams dict to have jobs for all fractions of a particular setup consecutive
     fractions = args.fractions

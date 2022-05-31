@@ -71,7 +71,7 @@ def conv2d_flops(in_channels, out_channels, input_shape, kernel_shape,
 
     # work to compute one output spatial position
     nflops = in_channels * out_channels * int(np.prod(kernel_shape))
-
+    # print("output size:", int(np.prod(output_shape)))
     # total work = work per output position * number of output positions
     return nflops * int(np.prod(output_shape))
 

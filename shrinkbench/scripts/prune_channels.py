@@ -7,6 +7,7 @@ import numpy as np
 import pathlib
 from shrinkbench.experiment import StructuredPruningExperiment
 from collections import OrderedDict
+import subprocess
 
 parser = argparse.ArgumentParser(description='Prune channels of a NN and finetune it')
 
@@ -24,7 +25,7 @@ parser.add_argument('-s', '--strategies', dest='strategies', type=str,
 parser.add_argument('-d', '--dataset', dest='dataset', type=str, help='Dataset to train on', default='MNIST')
 parser.add_argument('-m', '--model', dest='model', type=str, help='What NN to use', default='MnistNet')
 parser.add_argument('-t', '--structure', dest='structure', type=str, help='type of structure to prune '
-                                                                          '(neurons or channels)', default='neuron')
+                                                                          '(neurons or channels)', default=None)
 parser.add_argument('-l', '--layers', dest='layers', type=str, help='names of layers to prune, separated by comma'
                                         ' or all to prune all layers corresponding to chosen structure', default='all')
 parser.add_argument('-a', '--algo', dest='algo', type=str, help='What algorithm to use for SeqInChangeChannel '
@@ -32,8 +33,12 @@ parser.add_argument('-a', '--algo', dest='algo', type=str, help='What algorithm 
 parser.add_argument('-o', '--optim', dest='optim', type=str, help='What optimization algo to use for fine-tuning',
                     default='Adam')
 parser.add_argument('-b', '--nbatches', dest='nbatches', type=int, help='# of batches to use in pruning', default=1)
-parser.add_argument('-rw', '--rwchange', dest='rwchange',  type=bool, help='use reweighted change if true',
+parser.add_argument('-rw', '--rwchange', dest='rwchange', choices=('True', 'False'), help='use reweighted change if true',
                     default=None)
+parser.add_argument('-ld', '--limited_data', dest='limited_data', action='store_true', help='use only pruning data for finetuning if true',
+                    default=False)
+parser.add_argument('-fd', '--full_data', dest='full_data',  choices=('True', 'False'), default=None,
+                    help='use full training data for pruning in GreedyFSChannel')
 parser.add_argument('--layjob', dest='layjob_id', type=int, help='job id of one layer pruning job, if not provided use '
                                                                  'equal fractions for all layers', default=None)
 parser.add_argument('-f', '--fractions', dest='fractions', nargs="+", type=float, help='List of fractions of prunable '
@@ -44,16 +49,41 @@ parser.add_argument('--patches', dest='patches', type=str, help='use all or disj
                     default='all')
 parser.add_argument('--path', dest='path', type=str, help='path to save/read results', default='results')
 parser.add_argument('--data_path', dest='data_path', type=str, help='path to dataset', default='../data')
+parser.add_argument('--pruned_path', dest='pruned_path', type=str, help='path to pruned model weights and metrics to '
+                                                                        'load if not none', default=None)
+parser.add_argument('--reweight', dest='reweight',  choices=('True', 'False'), default=None,
+                   help='apply reweighting procedure after pruning')
 
+# parser.add_argument('-p', '--prune', dest='prune_kwargs', type=json.loads,
+#                    help='JSON string of pruning parameters for chosen strategy', default=tuple())
+
+# parser.add_argument('-S', '--seed', dest='seed', type=int, help='Random seed for reproducibility', default=42)
+# parser.add_argument('-P', '--path', dest='path', type=str, help='path to save', default=None)
+# parser.add_argument('--resume', dest='resume', type=str, help='Checkpoint to resume from', default=None)
+# parser.add_argument('--resume-optim', dest='resume_optim', action='store_true', default=False,
+#                     help='Resume also optim')
+# parser.add_argument('-n', '--debug', dest='debug', action='store_true', default=False,
+#                     help='Enable debug mode for logging')
+# parser.add_argument('-D', '--dl', dest='dl_kwargs', type=json.loads, help='JSON string of DataLoader parameters',
+#                     default=tuple())
+# parser.add_argument('-T', '--train', dest='train_kwargs', type=json.loads, help='JSON string of Train parameters',
+#                    default=tuple())
+# parser.add_argument('-g', dest='gpuid', type=str, help='GPU id', default="0")
+# parser.add_argument('--no-pretrained', dest='pretrained', action='store_false', default=True,
+#                     help='Do not use pretrained model')
 
 if __name__ == '__main__':
 
     args = parser.parse_args()
 
+
     os.environ['DATAPATH'] = args.data_path
     os.environ['WEIGHTSPATH'] = '../pretrained/shrinkbench-models'
     os.environ['TORCH_HOME'] = '../pretrained/torchvision-models'
+    # os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpuid)
+    # delattr(args, 'gpuid')
 
+    gitcommit_str = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode('ascii').strip()
     fixed_params = {'dataset': args.dataset,
                     'model': args.model,
                     'structure': args.structure,
@@ -65,17 +95,21 @@ if __name__ == '__main__':
                                      'scheduler_kwargs': {'gamma': 0.1, 'milestones': [10, 15]}},
                     'dl_kwargs': {'cifar_shape': True} if args.model == 'vgg11_bn_small_mnist' else {},
                     'nbatches': args.nbatches,
+                    'limited_data': args.limited_data,
                     'pretrained': True,
-                    'debug': False}
+                    'debug': False,
+                    'pruned_path': args.pruned_path,
+                    'rootdir': f'{args.path}/{args.dataset}-{args.model}-{gitcommit_str}-{args.job_id}'}
 
-    layer_strategies = ['LayerInChangeChannel',  'LayerRandomChannel', 'LayerWeightNormChannel', 'LayerActGradChannel']
+    layer_strategies = ['LayerInChangeChannel',  'LayerRandomChannel', 'LayerWeightNormChannel', 'LayerActGradChannel',
+                        'LayerGreedyFSChannel', 'LayerSamplingChannel']
     global_strategies = ['RandomChannel', 'WeightNormChannel', 'ActGradChannel']
-
+    # 'InChangeChannel', 'WeightChangeChannel'
     strategies = layer_strategies + global_strategies if args.strategies == "all" else args.strategies.split(',')
 
-    hyperparam_options = OrderedDict({'seed': [42 + i for i in range(args.nruns)],
+    hyperparam_options = OrderedDict({'seed': [42 + i for i in range(args.nruns)], # run using nruns different random seeds
                                       'strategy': strategies,
-                                      'reweight': [True, False]})
+                                      'reweight': [True, False] if args.reweight is None else [args.reweight == "True"]})
 
     prune_kwargs = {"rwchange": [True, False],
                     "asymmetric": [True, False],
@@ -83,10 +117,14 @@ if __name__ == '__main__':
                     # Frobenius norm of input of corresponding layer
                     "norm": [0, 1, 2],
                     "out": [True, False],
-                    "algo": ['greedy'] if args.algo is None else [args.algo], # 'sieve'
+                    "scale_masks": [True],  # False
+                    "algo": ['greedy'] if args.algo is None else [args.algo],  # 'sieve'
                     "select": [args.select],
                     "patches": [args.patches],
-                    "onelayer_results_dir": [f'{args.path}/onelayer-pruning/CIFAR10-vgg11_bn_small-{args.layjob_id}' if args.model=="vgg11_bn_small_mnist" else
+                    "epsilon": [0, 0.1, 0.01, 0.001],
+                    "full_data": [True, False] if args.full_data is None else [args.full_data == "True"],
+                    "onelayer_results_dir": [f'{args.path}/onelayer-pruning/CIFAR10-vgg11_bn_small-{args.layjob_id}'
+                                             if args.model == "vgg11_bn_small_mnist" else
                                              f'{args.path}/onelayer-pruning/{args.dataset}-{args.model}-{args.layjob_id}'
                                              if args.layjob_id is not None else None]}
 
@@ -104,12 +142,16 @@ if __name__ == '__main__':
                         'RandomChannel': [{}],
                         'LayerRandomChannel': get_prune_kwargs_dict(["onelayer_results_dir", "select"]),
                         'WeightNormChannel': [{"norm": True, "ord": 1}],  # , {"norm": False}],
-                        'LayerWeightNormChannel':  get_prune_kwargs_dict(["onelayer_results_dir", "select"],{"ord": 1}),
-                        'ActGradChannel': [{"norm": True}], # , {"norm": False}]
-                        'LayerActGradChannel':get_prune_kwargs_dict(["onelayer_results_dir", "select"])}
+                        'LayerWeightNormChannel':  get_prune_kwargs_dict(["onelayer_results_dir", "select"], {"ord": 1}),
+                        'ActGradChannel': [{"norm": True}],  # , {"norm": False}]
+                        'LayerActGradChannel': get_prune_kwargs_dict(["onelayer_results_dir", "select"]),
+                        'LayerGreedyFSChannel': get_prune_kwargs_dict(["scale_masks", "full_data", "select",
+                                                                       "onelayer_results_dir"]),
+                        'LayerSamplingChannel': [{"delta": 1e-12 if args.dataset == 'MNIST' else 1e-16}]
+                        }
 
     # add fractions last to hyperparams dict to have jobs for all fractions of a particular setup consecutive
-    fractions = args.fractions
+    fractions = args.fractions #list(np.logspace(-6, 0, 7, endpoint=True, base=2))
     hyperparam_keys = list(hyperparam_options.keys()) + ["prune_kwargs", "fractions"]
     hyperparams_set = [OrderedDict(zip(hyperparam_keys, params + (prune_kwargs, fraction)))
                        for params in itertools.product(*hyperparam_options.values())
@@ -120,7 +162,6 @@ if __name__ == '__main__':
     task_hyperparams_set = [hyperparams_set[args.task_id-1]] if len(hyperparams_set) == args.ntasks else \
         hyperparams_set[nparams_task*(args.task_id-1):nparams_task*args.task_id]
 
-    fixed_params['rootdir'] = f'{args.path}/{args.dataset}-{args.model}-{args.job_id}'
     parent = pathlib.Path(fixed_params['rootdir'])
     parent.mkdir(parents=True, exist_ok=True)
     config_file = parent / 'config.json'

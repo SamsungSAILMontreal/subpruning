@@ -2,6 +2,7 @@
 """
 from .abstract import Pruning
 from .utils import get_activations, get_param_gradients, get_gradients
+import torch
 
 
 class ActivationMixin(Pruning):
@@ -9,6 +10,9 @@ class ActivationMixin(Pruning):
     def update_activations(self, only_prunable=True):
         assert self.inputs is not None, \
             "Inputs must be provided for activations"
+        # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.model.to(self.device)
+        self.inputs = self.inputs.to(self.device)
         self._activations = get_activations(self.model, self.inputs, self.prunable if only_prunable else None)
         self._input_activations = {mod: act[0] for mod, act in self._activations.items()}
         self._output_activations = {mod: act[1] for mod, act in self._activations.items()}
@@ -43,6 +47,10 @@ class GradientMixin(Pruning):
     def update_gradients(self, param=True, only_prunable=True):
         assert self.inputs is not None and self.outputs is not None, \
             "Inputs and Outputs must be provided for gradients"
+        # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.model.to(self.device)
+        self.inputs = self.inputs.to(self.device)
+        self.outputs = self.outputs.to(self.device)
         if param:
             self._param_gradients = get_param_gradients(self.model, self.inputs, self.outputs)
         else:

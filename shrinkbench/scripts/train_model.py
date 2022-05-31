@@ -22,7 +22,6 @@ if __name__ == '__main__':
 
     print(torch.cuda.is_available())
 
-
     # model = 'LeNet'
     dataset = 'MNIST'
     model = 'vgg11_bn_small'
@@ -48,7 +47,7 @@ if __name__ == '__main__':
                                           nbatches=4,
                                           prune_kwargs=prune_kwargs,
                                           train_kwargs={'epochs': 0} if dataset == 'MNIST' and model == 'LeNet' else
-                                                       {'epochs': 60, 'optim': 'Adam', 'scheduler': 'MultiStepLR',
+                                                       {'epochs': 200, 'optim': 'Adam', 'scheduler': 'MultiStepLR',
                                                         'optim_kwargs': {'lr': 1e-3, 'weight_decay': 5e-4},
                                                         'scheduler_kwargs': {'gamma': 0.1, 'milestones': [100, 150]}},
                                           dl_kwargs={'cifar_shape': True},

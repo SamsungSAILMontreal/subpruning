@@ -28,6 +28,12 @@ pip install cmake
 pip install -e .
 ```
 
+To download data and pretrained weights:
+```bash
+# Install git lfs: https://git-lfs.github.com/ then fetch data and weights
+git lfs fetch --all
+```
+
 # Test installation
 
 ```bash
@@ -58,5 +64,6 @@ Note: make sure to adapt the PYTHONPATH in both lay_pruning_job.sh and pruning_j
 
 - Our code builds on the open source ShrinkBench library: https://github.com/JJGO/shrinkbench
 - We use the Greedy algorithm code from https://github.com/sbuschjaeger/SubmodularStreamingMaximization, with some modifications
+- Our implementation of the LayerSampling pruning method is adapted from the original code provided in (https://github.com/lucaslie/torchprune) 
 - We use the implementation of VGG11 provided in https://github.com/huyvnphan/PyTorch_CIFAR10/tree/v3.0.1
 - We use a progress bar from https://github.com/gipert/progressbar

@@ -8,6 +8,13 @@ strategy_name = {
 'LayerInChangeChannel - 2 - greedy - rwchange': 'LayerInChange',
 'LayerInChangeChannel - 2 - greedy - rwchange - sequential': 'SeqInChange',
 'LayerInChangeChannel - 2 - asymmetric - greedy - rwchange - sequential': 'AsymInChange',
+# 'LayerGreedyFSChannel' : 'LayerGreedyFS',
+# 'LayerGreedyFSChannel - 0' : 'LayerGreedyFS',
+'LayerGreedyFSChannel - scale_masks' : 'LayerGreedyFS',
+'LayerGreedyFSChannel - 0 - scale_masks' : 'LayerGreedyFS',
+'LayerGreedyFSChannel - full_data - scale_masks' : 'LayerGreedyFS-fd',
+'LayerSamplingChannel - 1e-12': 'LayerSampling',
+'LayerSamplingChannel - 1e-16': 'LayerSampling',
 'LayerActGradChannel':  'LayerActGrad',
 'ActGradChannel - norm': 'ActGrad',
 'LayerWeightNormChannel - 1' : 'LayerWeightNorm',
@@ -16,10 +23,16 @@ strategy_name = {
 'RandomChannel': 'Random',
 }
 
+# def strategy_name(strategy, prune_kwargs):
+#     if strategy == 'LayerInChangeChannel':
+#         return 'LayerInChange' if prune_kwargs['sequential'] is False else \
+#             ('SeqInChange' if prune_kwargs['asymmetric'] is False else 'AsymInChange') + prune_kwargs.get('epsilon', 0)
+
+
 def param_label(key, value):
     if isinstance(value, bool):
         return f' - {key}' if value else ''
-    elif key in ["onelayer_results_dir", "select", "patches"]:
+    elif key in ["onelayer_results_dir", "select", "patches", "train_dl"]:
         return ''
     else:
         return f' - {value}'
@@ -36,7 +49,7 @@ def df_from_results(results_path, glob='*', structured=False, icml=False):
                'pre_acc1', 'pre_acc5', 'post_acc1', 'post_acc5', 'last_acc1', 'last_acc5', 'finetuning_time',
                # 'train_acc1_all', 'train_acc5_all', 'train_loss_all',
                # 'val_acc1_all', 'val_acc5_all', 'val_loss_all',
-               'seed', 'batch_size', 'train_kwargs', # 'prune_kwargs',
+               'seed', 'batch_size', 'train_kwargs',  # 'prune_kwargs',
                'completed_epochs', 'path']
     # Structured pruning experiments have fraction (channels kept/ prunable channels) param instead of the compression
     # (total weights / pruned weights) param used in weight pruning experiments

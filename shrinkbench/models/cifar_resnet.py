@@ -127,7 +127,8 @@ def resnet_factory(filters, num_classes, weight_file):
         model = ResNet(BasicBlock, filters, num_classes=num_classes)
         if pretrained:
             weights = weights_path(weight_file)
-            weights = torch.load(weights)['state_dict']
+            device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+            weights = torch.load(weights, map_location=device)['state_dict']
             # TODO have a better solution for DataParallel models
             # For models trained with nn.DataParallel
             if list(weights.keys())[0].startswith('module.'):

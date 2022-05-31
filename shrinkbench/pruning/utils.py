@@ -87,7 +87,6 @@ def get_activations(model, input, modules=None):
         activations[module] = (input[0].detach().cpu().numpy().copy(),
                                output.detach().cpu().numpy().copy(),)
 
-
     fn, hooks = hook_applyfn(store_activations, model, forward=True)
     if modules is None:
         model.apply(fn)
@@ -121,19 +120,24 @@ def get_activations(model, input, modules=None):
 def get_gradients(model, inputs, outputs, modules=None, loss_func=None):
     # TODO: As explained above this could have problems in some cases, so we need to test if it works properly for every
     #  model we want to use. So far tested for LeNet and vgg-11 models
+    #  This also only works when using cpu. With gpu gradients don't have expected shapes. See discussion here
+    #  https://stackoverflow.com/questions/62994718/pytorch-gradients-have-different-shape-for-cuda-and-cpu
     if loss_func is None:
         loss_func = nn.CrossEntropyLoss()
 
     gradients = OrderedDict()
 
     def store_gradients(module, grad_input, grad_output):
+        # add following lines to make breakpoints work inside this backward hook on vscode
+        # import pydevd
+        # pydevd.settrace(suspend=False, trace_only_current_thread=True)
         assert module not in gradients, \
             f"{module} already in gradients"
         if isinstance(module, (LinearMasked, nn.Linear)):
             # grad_input of linear is in this order (bias, input, weight)
             ind = 1
         elif isinstance(module, (Conv2dMasked, nn.Conv2d)):
-            # grad_input of conv2d is in this order (bias, input, weight)
+            # grad_input of conv2d is in this order (input, weight, bias)
             ind = 0
         else:
             raise NotImplementedError("TODO: check index of input/output gradient of module")

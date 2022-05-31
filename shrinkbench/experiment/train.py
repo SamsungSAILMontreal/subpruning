@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 from torch.backends import cudnn
 from tqdm import tqdm
 import json
-
+import random
 from .base import Experiment
 from .. import datasets
 from .. import models
@@ -86,7 +86,13 @@ class TrainingExperiment(Experiment):
         train_ind = list(set(range(0, len(self.train_dataset))) - set(verif_ind))
         self.verif_dataset = torch.utils.data.Subset(self.train_dataset, verif_ind)
         self.train_dataset = torch.utils.data.Subset(self.train_dataset, train_ind)
+        if 'nbatches' in dl_kwargs:  # limit training data to only nbatches
+            self.train_dataset = torch.utils.data.Subset(self.train_dataset, random.sample(range(len(self.train_dataset)),
+                                                                     dl_kwargs.pop('nbatches')*dl_kwargs['batch_size']))
+        # self.prune_dataset = torch.utils.data.Subset(self.train_dataset, random.sample(range(len(self.train_dataset)),
+        #                                                            dl_kwargs.pop('nbatches')*dl_kwargs['batch_size']))
         self.train_dl = DataLoader(self.train_dataset, shuffle=True, **dl_kwargs)
+        #self.prune_dl = DataLoader(self.prune_dataset, shuffle=True, **dl_kwargs)
         self.verif_dl = DataLoader(self.verif_dataset, shuffle=False, **dl_kwargs)
         self.val_dl = DataLoader(self.val_dataset, shuffle=False, **dl_kwargs)
 
@@ -149,10 +155,11 @@ class TrainingExperiment(Experiment):
         self.model.to(self.device)
         cudnn.benchmark = True   # For fast training.
 
-    def checkpoint(self):
+    def checkpoint(self, epoch=None):
         checkpoint_path = self.path / 'checkpoints'
         checkpoint_path.mkdir(exist_ok=True, parents=True)
-        epoch = self.log_epoch_n
+        if epoch is None:
+            epoch = self.log_epoch_n
         torch.save({
             'model_state_dict': self.model.state_dict(),
             'optim_state_dict': self.optim.state_dict()
