@@ -35,13 +35,6 @@ To download data and pretrained weights:
 git lfs fetch --all
 ```
 
-Or 
-
-- download data from https://github.com/marwash25/subpruning/tree/main/shrinkbench/data and place it inside diverse-nas/shrinkbench folder 
-- download pretrained lenet model from https://github.com/marwash25/subpruning/blob/main/shrinkbench/pretrained/shrinkbench-models/mnist/lenet.pt and place it inside diverse-nas/shrinkbench/pretrained/shrinkbench-models/mnist folder
-- download pretrained vgg11 models from https://github.com/marwash25/subpruning/tree/main/shrinkbench/models/cifar10_models/state_dicts and place them inside diverse-nas/shrinkbench/models/cifar10_models/state_dicts 
-- download pretrained resnet56 model from https://github.com/JJGO/shrinkbench-models/blob/master/cifar10/resnet56.th and place it inside and place it inside shrinkbench/pretrained/shrinkbench-models/cifar10 folder
-
 # Test installation
 
 ```bash
