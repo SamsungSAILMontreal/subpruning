@@ -29,10 +29,18 @@ pip install -e .
 ```
 
 To download data and pretrained weights:
+
 ```bash
 # Install git lfs: https://git-lfs.github.com/ then fetch data and weights
 git lfs fetch --all
 ```
+
+Or 
+
+- download data from https://github.com/marwash25/subpruning/tree/main/shrinkbench/data and place it inside diverse-nas/shrinkbench folder 
+- download pretrained lenet model from https://github.com/marwash25/subpruning/blob/main/shrinkbench/pretrained/shrinkbench-models/mnist/lenet.pt and place it inside diverse-nas/shrinkbench/pretrained/shrinkbench-models/mnist folder
+- download pretrained vgg11 models from https://github.com/marwash25/subpruning/tree/main/shrinkbench/models/cifar10_models/state_dicts and place them inside diverse-nas/shrinkbench/models/cifar10_models/state_dicts 
+- download pretrained resnet56 model from https://github.com/JJGO/shrinkbench-models/blob/master/cifar10/resnet56.th and place it inside and place it inside shrinkbench/pretrained/shrinkbench-models/cifar10 folder
 
 # Test installation
 
@@ -51,13 +59,11 @@ Note: make sure to adapt the PYTHONPATH in both lay_pruning_job.sh and pruning_j
 
 # To cite our paper
 ```
-@misc{elhalabi2022dataefficient,
+@InProceedings{elhalabi2022dataefficient,
       title={Data-Efficient Structured Pruning via Submodular Optimization}, 
       author={Marwa El Halabi and Suraj Srinivas and Simon Lacoste-Julien},
+      booktitle = {Advances in Neural Information Processing Systems},
       year={2022},
-      eprint={2203.04940},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG}
 }
 ```
 # Acknowledgements

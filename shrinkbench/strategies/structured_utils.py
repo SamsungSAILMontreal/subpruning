@@ -29,7 +29,7 @@ def flatten_channel_importances(importances):
 
 def prune_threshold_channels(importances, threshold):
     # compute mask for tensor masking weights of channels with abs(importance) <= threshold, and corresponding bias if any
-    pruned_channels = np.where(np.logical_and(importances <= threshold, importances >= -threshold))[0]
+    pruned_channels = np.where(np.abs(importances) <= threshold)[0]
     return pruned_channels
 
 

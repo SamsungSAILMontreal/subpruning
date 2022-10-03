@@ -15,7 +15,55 @@ from .. import models
 from ..metrics import correct
 from ..models.head import mark_classifier
 from ..util import printc, OnlineStats
+import numpy as np
 
+from torch.utils.data import DataLoader
+from torch.utils.data.sampler import BatchSampler
+
+
+class BalancedBatchSampler(BatchSampler):
+    """
+    BatchSampler - from a MNIST-like dataset, samples n_classes and within these classes samples n_samples.
+    Returns batches of size n_classes * n_samples
+    taken from https://discuss.pytorch.org/t/load-the-same-number-of-data-per-class/65198/4
+    """
+
+    def __init__(self, dataset, n_classes, n_samples):
+        loader = DataLoader(dataset)
+        self.labels_list = []
+        for _, label in loader:
+            self.labels_list.append(label)
+        self.labels = torch.LongTensor(self.labels_list)
+        self.labels_set = list(set(self.labels.numpy()))
+        self.label_to_indices = {label: np.where(self.labels.numpy() == label)[0]
+                                 for label in self.labels_set}
+        for l in self.labels_set:
+            np.random.shuffle(self.label_to_indices[l])
+        self.used_label_indices_count = {label: 0 for label in self.labels_set}
+        self.count = 0
+        self.n_classes = n_classes
+        self.n_samples = n_samples
+        self.dataset = dataset
+        self.batch_size = self.n_samples * self.n_classes
+
+    def __iter__(self):
+        self.count = 0
+        while self.count + self.batch_size < len(self.dataset):
+            classes = np.random.choice(self.labels_set, self.n_classes, replace=False)
+            indices = []
+            for class_ in classes:
+                indices.extend(self.label_to_indices[class_][
+                               self.used_label_indices_count[class_]:self.used_label_indices_count[
+                                                                         class_] + self.n_samples])
+                self.used_label_indices_count[class_] += self.n_samples
+                if self.used_label_indices_count[class_] + self.n_samples > len(self.label_to_indices[class_]):
+                    np.random.shuffle(self.label_to_indices[class_])
+                    self.used_label_indices_count[class_] = 0
+            yield indices
+            self.count += self.n_classes * self.n_samples
+
+    def __len__(self):
+        return len(self.dataset) // self.batch_size
 
 class TrainingExperiment(Experiment):
 
@@ -80,6 +128,7 @@ class TrainingExperiment(Experiment):
             self.train_dataset = constructor(train=True)
             self.val_dataset = constructor(train=False)
 
+        n_classes = len(self.train_dataset.classes)
         # verification dataset used for per layer fraction selection
         verif_ind = [] if self.params['finetune'] else \
             list(range(0, len(self.train_dataset), int(len(self.train_dataset)/len(self.val_dataset))))
@@ -89,10 +138,13 @@ class TrainingExperiment(Experiment):
         if 'nbatches' in dl_kwargs:  # limit training data to only nbatches
             self.train_dataset = torch.utils.data.Subset(self.train_dataset, random.sample(range(len(self.train_dataset)),
                                                                      dl_kwargs.pop('nbatches')*dl_kwargs['batch_size']))
+        n_samples=51 # later choose 10
+        pruning_sampler = BalancedBatchSampler(self.train_dataset, n_classes, n_samples)
         # self.prune_dataset = torch.utils.data.Subset(self.train_dataset, random.sample(range(len(self.train_dataset)),
         #                                                            dl_kwargs.pop('nbatches')*dl_kwargs['batch_size']))
         self.train_dl = DataLoader(self.train_dataset, shuffle=True, **dl_kwargs)
-        #self.prune_dl = DataLoader(self.prune_dataset, shuffle=True, **dl_kwargs)
+        self.prune_dl = DataLoader(self.train_dataset, batch_sampler=pruning_sampler, **{'pin_memory': False,
+                                                                                         'num_workers': 8})
         self.verif_dl = DataLoader(self.verif_dataset, shuffle=False, **dl_kwargs)
         self.val_dl = DataLoader(self.val_dataset, shuffle=False, **dl_kwargs)
 
@@ -150,6 +202,9 @@ class TrainingExperiment(Experiment):
     def to_device(self):
         # Torch CUDA config
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        # if torch.cuda.is_available(): # add this if we run into memory error again
+        #     torch.cuda.empty_cache()
+        # else:
         if not torch.cuda.is_available():
             printc("GPU NOT AVAILABLE, USING CPU!", color="ORANGE")
         self.model.to(self.device)

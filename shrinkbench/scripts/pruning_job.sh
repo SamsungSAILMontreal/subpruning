@@ -3,7 +3,7 @@
 # Slurm sbatch options
 #SBATCH -o outputLogs/pruning_job-%A-%a.out
 #SBATCH -a 1-960 #Change according to max njobs allowed on cluster
-#SBATCH -c 20
+#SBATCH -c 20 #Change according to number of cpus available
 #SBATCH --gres=gpu:volta:1
 
 echo "My SLURM_ARRAY_TASK_ID: " $SLURM_ARRAY_TASK_ID

@@ -13,6 +13,8 @@ strategy_name = {
 'LayerGreedyFSChannel - scale_masks' : 'LayerGreedyFS',
 'LayerGreedyFSChannel - 0 - scale_masks' : 'LayerGreedyFS',
 'LayerGreedyFSChannel - full_data - scale_masks' : 'LayerGreedyFS-fd',
+'LayerGreedyFSChannel - full_data - fw - scale_masks': 'LayerGreedyFS-fd',
+'LayerGreedyFSChannel - fw - scale_masks': 'LayerGreedyFS',
 'LayerSamplingChannel - 1e-12': 'LayerSampling',
 'LayerSamplingChannel - 1e-16': 'LayerSampling',
 'LayerActGradChannel':  'LayerActGrad',
@@ -38,23 +40,22 @@ def param_label(key, value):
         return f' - {value}'
 
 
-def df_from_results(results_path, glob='*', structured=False, icml=False):
+def df_from_results(results_path, glob='*', cf_key='compression', structured=True, icml=False):
     results = []
     results_path = pathlib.Path(results_path)
 
     COLUMNS = ['dataset', 'model', 'prune_layers',
-               'strategy', 'compression', 'pruning_time',
+               'strategy', cf_key, 'pruning_time',
                'size', 'size_nz_orig', 'size_nz', 'real_compression',
                'flops', 'flops_nz', 'speedup',
                'pre_acc1', 'pre_acc5', 'post_acc1', 'post_acc5', 'last_acc1', 'last_acc5', 'finetuning_time',
                # 'train_acc1_all', 'train_acc5_all', 'train_loss_all',
                # 'val_acc1_all', 'val_acc5_all', 'val_loss_all',
-               'seed', 'batch_size', 'train_kwargs',  # 'prune_kwargs',
+               'seed', 'nbatches', 'batch_size', 'train_kwargs',  # 'prune_kwargs',
                'completed_epochs', 'path']
     # Structured pruning experiments have fraction (channels kept/ prunable channels) param instead of the compression
     # (total weights / pruned weights) param used in weight pruning experiments
-    compression_key = 'fraction' if structured else 'compression'
-    COLUMNS[4] = compression_key
+
     if structured:
         COLUMNS += ['reweight', 'structure']
 
@@ -76,7 +77,7 @@ def df_from_results(results_path, glob='*', structured=False, icml=False):
                         params['model'],
                         ', '.join(params['prune_layers']),
                         strategy_name.get(strategy, 'NotIncluded') if icml else strategy,
-                        params[compression_key],
+                        params[cf_key],
                         # Metrics
                         metrics['pruning_time'],
                         metrics['size'],
@@ -106,6 +107,7 @@ def df_from_results(results_path, glob='*', structured=False, icml=False):
                         # logs['val_loss'].iloc[:],
                         # Other params
                         params['seed'],
+                        params['nbatches'],
                         params['dl_kwargs']['batch_size'],
                         # params['train_kwargs']['epochs'],
                         # params['train_kwargs']['optim'],
@@ -127,7 +129,7 @@ def df_from_results(results_path, glob='*', structured=False, icml=False):
     print("number of folders skipped: ", count_skipped)
     df = pd.DataFrame(data=results, columns=COLUMNS)
     # df = broadcast_unitary_compression(df, compression_key)
-    df = df.sort_values(by=['dataset', 'model', 'strategy', compression_key, 'seed'])
+    df = df.sort_values(by=['dataset', 'model', 'strategy', cf_key, 'seed'])
     return df
 
 
@@ -143,8 +145,8 @@ def df_filter(df, **kwargs):
     return df
 
 
-def broadcast_unitary_compression(df, compression_key):
-    for _, row in df[df[compression_key] == 1].iterrows():
+def broadcast_unitary_compression(df, cf_key):
+    for _, row in df[df[cf_key] == 1].iterrows():
         for strategy in set(df['strategy']):
             if strategy is not None:
                 new_row = row.copy()

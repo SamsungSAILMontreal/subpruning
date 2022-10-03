@@ -108,9 +108,11 @@ def dict_to_list(S):
     return [(key, ind) for key in S for ind in S[key]]
 
 
-def list_to_dict(S):
+def list_to_dict(S, default_keys=None):
     # convert list of tuples of (key, val) to dict of lists
     S_dict = defaultdict(list)
+    if default_keys is not None:
+        for key in default_keys: S_dict[key] = []
     for e in S:
         S_dict[e[0]].append(e[1])
     return S_dict
@@ -179,18 +181,57 @@ class NegInputChange(ScaledFctWrapper):
         W = params['weight']
         # reshape needed for structure = channel, transpose needed because update_colsubset expects W of shape
         # (in_features, out_features)
-        W = W.reshape(W.shape[0], -1).T
-        A = orig_acts if asymmetric else acts
-        B = acts
+        self.W = W.reshape(W.shape[0], -1).T
+        self.A = orig_acts if asymmetric else acts
+        self.B = acts
         if self.bias:
-            W = np.concatenate((W, np.expand_dims(params["bias"], axis=0)), axis=0)  # append row of bias weights
-            B = np.concatenate((B, np.ones((B.shape[0], 1))), axis=1)  # add col of ones for bias
-            A = np.concatenate((A, np.ones((A.shape[0], 1))), axis=1)  # add col of ones for bias
+            self.W = np.concatenate((W, np.expand_dims(params["bias"], axis=0)), axis=0)  # append row of bias weights
+            self.B = np.concatenate((B, np.ones((B.shape[0], 1))), axis=1)  # add col of ones for bias
+            self.A = np.concatenate((A, np.ones((A.shape[0], 1))), axis=1)  # add col of ones for bias
 
-        # B should have all 2k cols lin. indep. for function to be weakly submodular
-        # print("rank:", np.linalg.matrix_rank(B))
-        c = 1 / np.linalg.norm(A @ W) ** 2 if norm == 2 else 1 / A.shape[0] if norm == 1 else 1
-        super().__init__(ColSubsetSel(B, W, rwchange, map, A, backward), c if backward else -c)
+        c = 1 / np.linalg.norm(self.A @ self.W) ** 2 if norm == 2 else 1 / self.A.shape[0] if norm == 1 else 1
+        super().__init__(ColSubsetSel(self.B, self.W, rwchange, map, self.A, backward), c if backward else -c)
+
+    def get_kbound(self):
+        # get upper bound on k/n_channels for which our lower bounds on gamma (submodularity ratio)
+        # and alpha (DR-submodularity ratio) are non-zero, and for F to have total curvature < 1
+        kbound_mod = 0
+        # B should have all 2k / 2k x kernel_size  cols lin. indep. for F to be gamma_{2k} weakly submodular
+        # with our lower bd on gamma_{2k} > 0
+        rankB = np.linalg.matrix_rank(self.B)
+        print("rank:", rankB)
+        print(f"shape of B:", self.B.shape)
+        kbound = rankB/(2*self.B.shape[1])
+        print(f"rank(B) / (2 n_channels x kernel_size):", kbound)
+
+        # the following are only relevant for linear layers
+        # (I couldn't show that the function for pruning regular regions is weakly DR-submodular)
+        if len(self.map([1]))==1:
+            # AW should have all rows lin. indep for  F to be alpha_{2k-1} weakly DR-submodular
+            # with our lower bd on alpha_{2k-1} > 0
+            rankAW = np.linalg.matrix_rank(self.A @ self.W)
+            print("rank(AW):", rankAW, " n:", self.A.shape[0])
+            if rankAW == self.A.shape[0]:
+                kbound = 1
+                # AW should have all rows lin. indep and B all k+1 cols lin. indep. for F to have total curvature 1 - alpha_{k} < 1
+                kbound_mod = (rankB-1)/self.B.shape[1]
+                print("rank(B)-1/n_channels: ", kbound_mod)
+
+            if not self.asymmetric:
+                # another sufficient condition for F to have total curvature 1 - alpha_{k} < 1 in symmetric formulation is
+                # W should have all rows lin. indep and B=A all k+1 cols lin. indep.
+                rankW = np.linalg.matrix_rank(self.W)
+                print("rank(W):", rankW, " n_channels :", self.W.shape[0])
+                if rankW == self.W.shape[0]:
+                    kbound_mod = (rankB-1)/self.B.shape[1]
+                    print("rank(B)-1/n_channels: ", kbound_mod)
+
+        return max(kbound, kbound_mod), kbound_mod
+
+
+
+
+
 
     def get_new_params(self, S, cur=True):
         if self.rwchange:
