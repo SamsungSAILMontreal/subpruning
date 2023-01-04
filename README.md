@@ -28,12 +28,9 @@ pip install cmake
 pip install -e .
 ```
 
-To download data and pretrained weights:
-
-```bash
-# Install git lfs: https://git-lfs.github.com/ then fetch data and weights
-git lfs fetch --all
-```
+Download data from https://drive.google.com/drive/folders/1ae-NCkGhu6gX3AwnCrytMQftywd62kyz and place data folder inside subpruning/shrinkbench folder 
+Download pretrained lenet and resnet56 models from https://drive.google.com/drive/folders/16SsMrq_qp2CYgfbIU4rpkKpfV0DyVXzH?usp=sharing and place pretrained folder inside subpruning/shrinkbench folder 
+Download pretrained vgg11 model from https://drive.google.com/drive/folders/16CcqDpfNkE046pfXbe_d1UE6ZpeaRRMl?usp=sharing and place state_dicts folder inside subpruning/shrinkbench/models/cifar10_models folder
 
 # Test installation
 
