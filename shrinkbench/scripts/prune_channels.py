@@ -32,17 +32,21 @@ parser.add_argument('-a', '--algo', dest='algo', type=str, help='What algorithm 
                                                                 'and InChangeChannel', default=None)
 parser.add_argument('-o', '--optim', dest='optim', type=str, help='What optimization algo to use for fine-tuning',
                     default='Adam')
-parser.add_argument('-b', '--nbatches', dest='nbatches', type=int, help='# of batches to use in pruning', default=1)
+parser.add_argument('-b', '--nbatches', dest='nbatches',  nargs="+", type=int, help='list of # of batches to use in pruning', default=1)
 parser.add_argument('-rw', '--rwchange', dest='rwchange', choices=('True', 'False'), help='use reweighted change if true',
                     default=None)
 parser.add_argument('-ld', '--limited_data', dest='limited_data', action='store_true', help='use only pruning data for finetuning if true',
                     default=False)
 parser.add_argument('-fd', '--full_data', dest='full_data',  choices=('True', 'False'), default=None,
                     help='use full training data for pruning in GreedyFSChannel')
+parser.add_argument('-fw', '--fw', dest='fw',  choices=('True', 'False'), default='False',
+                    help='use Frank-Wolfe style greedy in GreedyFSChannel')
 parser.add_argument('--layjob', dest='layjob_id', type=int, help='job id of one layer pruning job, if not provided use '
                                                                  'equal fractions for all layers', default=None)
 parser.add_argument('-f', '--fractions', dest='fractions', nargs="+", type=float, help='List of fractions of prunable '
-                                                    'channels to keep', default=[0.01, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75, 1.0])
+                                            'channels to keep', default=[0.01, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75, 1.0])
+parser.add_argument('-c', '--compressions', dest='compressions', nargs="+", type=float, help='List of compressions of prunable '
+                                       'channels to keep', default=[1, 2, 4, 8, 16, 32, 64, 128])
 parser.add_argument('--select', dest='select', type=str, help='use min or sum in fraction selection',
                     default='min')
 parser.add_argument('--patches', dest='patches', type=str, help='use all or disjoint or random patches in LayerInChangeChannel',
@@ -94,7 +98,7 @@ if __name__ == '__main__':
                                      'optim_kwargs': {'lr': 1e-3, 'weight_decay': 5e-4},
                                      'scheduler_kwargs': {'gamma': 0.1, 'milestones': [10, 15]}},
                     'dl_kwargs': {'cifar_shape': True} if args.model == 'vgg11_bn_small_mnist' else {},
-                    'nbatches': args.nbatches,
+                    'fullnet_comp': True,
                     'limited_data': args.limited_data,
                     'pretrained': True,
                     'debug': False,
@@ -109,7 +113,8 @@ if __name__ == '__main__':
 
     hyperparam_options = OrderedDict({'seed': [42 + i for i in range(args.nruns)], # run using nruns different random seeds
                                       'strategy': strategies,
-                                      'reweight': [True, False] if args.reweight is None else [args.reweight == "True"]})
+                                      'reweight': [True, False] if args.reweight is None else [args.reweight == "True"],
+                                      'nbatches': args.nbatches})
 
     prune_kwargs = {"rwchange": [True, False],
                     "asymmetric": [True, False],
@@ -118,6 +123,7 @@ if __name__ == '__main__':
                     "norm": [0, 1, 2],
                     "out": [True, False],
                     "scale_masks": [True],  # False
+                    "fw": [args.fw == "True"],
                     "algo": ['greedy'] if args.algo is None else [args.algo],  # 'sieve'
                     "select": [args.select],
                     "patches": [args.patches],
@@ -145,18 +151,18 @@ if __name__ == '__main__':
                         'LayerWeightNormChannel':  get_prune_kwargs_dict(["onelayer_results_dir", "select"], {"ord": 1}),
                         'ActGradChannel': [{"norm": True}],  # , {"norm": False}]
                         'LayerActGradChannel': get_prune_kwargs_dict(["onelayer_results_dir", "select"]),
-                        'LayerGreedyFSChannel': get_prune_kwargs_dict(["scale_masks", "full_data", "select",
+                        'LayerGreedyFSChannel': get_prune_kwargs_dict(["scale_masks", "full_data", "select", "fw",
                                                                        "onelayer_results_dir"]),
                         'LayerSamplingChannel': [{"delta": 1e-12 if args.dataset == 'MNIST' else 1e-16}]
                         }
 
-    # add fractions last to hyperparams dict to have jobs for all fractions of a particular setup consecutive
-    fractions = args.fractions #list(np.logspace(-6, 0, 7, endpoint=True, base=2))
-    hyperparam_keys = list(hyperparam_options.keys()) + ["prune_kwargs", "fractions"]
-    hyperparams_set = [OrderedDict(zip(hyperparam_keys, params + (prune_kwargs, fraction)))
+    # add compressions last to hyperparams dict to have jobs for all compressions of a particular setup consecutive
+    compressions = args.compressions #list(np.logspace(-6, 0, 7, endpoint=True, base=2))
+    hyperparam_keys = list(hyperparam_options.keys()) + ["prune_kwargs", "compressions"]
+    hyperparams_set = [OrderedDict(zip(hyperparam_keys, params + (prune_kwargs, compression)))
                        for params in itertools.product(*hyperparam_options.values())
                        for prune_kwargs in prune_kwargs_map[params[1]]
-                       for fraction in fractions]
+                       for compression in compressions]
 
     nparams_task = int(np.ceil(len(hyperparams_set) / args.ntasks))
     task_hyperparams_set = [hyperparams_set[args.task_id-1]] if len(hyperparams_set) == args.ntasks else \
@@ -166,7 +172,7 @@ if __name__ == '__main__':
     parent.mkdir(parents=True, exist_ok=True)
     config_file = parent / 'config.json'
     if not config_file.is_file():
-        config = {**fixed_params, **hyperparam_options, "prune_kwargs": prune_kwargs_map, "fractions": fractions}
+        config = {**fixed_params, **hyperparam_options, "prune_kwargs": prune_kwargs_map, "compressions": compressions}
         json.dump(config, open(config_file, 'w'), indent=4)
 
     for hyperparams in task_hyperparams_set:

@@ -5,6 +5,7 @@
 #include <pybind11/functional.h>
 #include <pybind11/iostream.h>
 
+#include "DataTypeHandling.h"
 #include "SubmodularFunction.h"
 #include "functions/kernels/RBFKernel.h"
 #include "functions/kernels/Kernel.h"
@@ -135,8 +136,8 @@ void declare_template_classes(py::module &m, const std::string &typestr) {
     pyclass_name = std::string("Greedy") + typestr;
     py::class_<Greedy<T>>(m, pyclass_name.c_str())
         //.def(py::init<unsigned int, std::shared_ptr<SubmodularFunction>>(), py::arg("K"), py::arg("f"))
-        .def(py::init<unsigned int, SubmodularFunction<T>&>(), py::arg("K"), py::arg("f"))
-        .def(py::init<unsigned int, std::function<data_t (std::vector<T> const &)> >(), py::arg("K"), py::arg("f"))
+        .def(py::init<unsigned int, SubmodularFunction<T>&, unsigned int>(), py::arg("K"), py::arg("f"), py::arg("s")=std::numeric_limits<int>::max())
+        .def(py::init<unsigned int, std::function<data_t (std::vector<T> const &)>,unsigned int>(), py::arg("K"), py::arg("f"), py::arg("s")=std::numeric_limits<int>::max())
         .def("get_solution", &Greedy<T>::get_solution)
         .def("get_ids", &Greedy<T>::get_ids)
         .def("get_fval", &Greedy<T>::get_fval)
@@ -232,7 +233,8 @@ void declare_template_classes(py::module &m, const std::string &typestr) {
 }
 
 PYBIND11_MODULE(PySSM, m) {
-    // m.def("fit_greedy_on_ivm", &fit_greedy_on_ivm, 
+    m.def("fix_seed_PySSM", &fix_seed_PySSM, py::arg("seed")=0);
+    // m.def("fit_greedy_on_ivm", &fit_greedy_on_ivm,
     //     py::arg("K"), 
     //     py::arg("sigma"),
     //     py::arg("scale"),

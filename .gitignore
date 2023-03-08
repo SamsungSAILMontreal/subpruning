@@ -1,3 +1,9 @@
 shrinkbench/data
 shrinkbench/pretrained
 shrinkbench/models/cifar10_models/state_dicts
+shrinkbench/env
+__pycache__/
+.idea/
+SubmodularStreamingMaximization/build
+SubmodularStreamingMaximization/PySSM.egg-info
+PySSM.cpython-38-darwin.so

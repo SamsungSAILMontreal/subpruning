@@ -6,7 +6,7 @@ from numpy.linalg import slogdet
 from PySSM import SubmodularFunctionlist
 from PySSM import IVM, FastIVM
 from PySSM import RBFKernel
-
+from PySSM import fix_seed_PySSM
 from PySSM import Greedylist
 from PySSM import Randomlist
 from PySSM import SieveStreaminglist
@@ -104,6 +104,7 @@ class FastLogdet(SubmodularFunctionlist):
 # opt = ThreeSieves(K, fastLogDet, 2.0, 0.1, "sieve", T = 100)
 
 # X = list(range(10))
+fix_seed_PySSM(0)
 X = [
     [0, 0],
     [1, 1],
@@ -120,8 +121,8 @@ kernel = RBFKernel(sigma=1, scale=1)
 ivm = IVM(kernel=kernel, sigma=1.0)
 fastivm = FastIVM(K=K, kernel=kernel, sigma=1.0)
 #fastLogDet = FastLogdet(K)
-optimizers = [SieveStreaminglist(K, FastLogdet(K), 2.0, 0.1), SieveStreaminglist(K, FastLogdet(K), 2.0, 0.1), Greedylist(K, FastLogdet(K)), ThreeSieveslist(K, FastLogdet(K), 2.0, 0.1, "sieve", T=10)]
-
+# optimizers = [SieveStreaminglist(K, FastLogdet(K), 2.0, 0.1), SieveStreaminglist(K, FastLogdet(K), 2.0, 0.1), Greedylist(K, FastLogdet(K)), ThreeSieveslist(K, FastLogdet(K), 2.0, 0.1, "sieve", T=10)]
+optimizers = [Greedylist(K, FastLogdet(K), 3)]
 for opt in optimizers:
     opt.fit(X)
 

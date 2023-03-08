@@ -2,13 +2,20 @@
 #define DATATYPEHANDLING_H_
 
 #include <vector>
-
+#include <string>
+#include <random>
 //#include "Eigen/Eigen"
 //#include "float.h"
 //#include <memory>
 
 typedef double data_t;
 typedef long idx_t;
+std::default_random_engine global_generator;
+
+void fix_seed_PySSM(unsigned long seed = 0){
+    global_generator.seed(seed);
+    //std::cout<<"sample produced with seed = "<<global_generator()<<std::endl;
+}
 
 // struct Data {
 //     std::vector<data_t> x;
