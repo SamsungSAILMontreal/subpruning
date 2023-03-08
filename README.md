@@ -1,5 +1,6 @@
 # Data-Efficient Structured Pruning via Submodular Optimization
 
+[Marwa El Halabi](https://sites.google.com/view/marwaelhalabi/home), [Suraj Srinivas](https://suraj-srinivas.github.io/), [Simon Lacoste-Julien](http://www.iro.umontreal.ca/~slacoste/)
 Code to reproduce results of the paper [Data-Efficient Structured Pruning via Submodular Optimization](https://arxiv.org/abs/2203.04940)
 
 ## Installation
